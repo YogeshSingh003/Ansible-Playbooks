@@ -1,0 +1,48 @@
+- hosts: all
+  tasks:
+  - file:
+      state: directory
+      path: "/dvd"
+
+  - mount:
+      path: "/dvd"
+      src: "/dev/sr0"
+      fstype: "iso9660"
+      state: mounted
+
+  - yum_repository: 
+      baseurl: "/dvd/AppStream"
+      name: "yum_dvd_1"
+      description: "Yum Configuration 1"
+      gpgcheck: no
+
+  - yum_repository:
+      baseurl: "/dvd/BaseOS"
+      name: "yum_dvd_2"
+      description: "Yum Configuration 2"
+      gpgcheck: no
+
+  - yum_repository:
+      name: "epel"
+      description: "epel configuration"
+      baseurl: "https://download.fedoraproject.org/pub/epel/$releasever/$basearch/"
+      gpgcheck: no
+
+  - package:
+      name: "httpd"
+      state: present
+
+  - copy:
+      dest: "/var/www/html/index.html"
+      content: "This is test\n"
+
+  - service:
+      name: "httpd"
+      state: started
+      enabled: yes 
+
+  - firewalld:
+      port: "80/tcp"
+      state: enabled
+      permanent: yes
+      immediate: yes
